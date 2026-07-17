@@ -262,6 +262,112 @@ function loadSheet() {
   applyCsmPresetIfPossible();
 }
 
+/* ---------- quick-start templates (built-in sample data, no file needed) --------- */
+
+const SAMPLE_TEMPLATES = {
+  salesVsTarget: {
+    label: 'Sales vs Target',
+    rows: [
+      { Region: 'Central', Province: 'Bangkok', Sales: 4200000, 'Sales Target': 4000000 },
+      { Region: 'Central', Province: 'Ayutthaya', Sales: 800000, 'Sales Target': 700000 },
+      { Region: 'Northeast', Province: 'Khon Kaen', Sales: 1500000, 'Sales Target': 1800000 },
+      { Region: 'Northeast', Province: 'Nakhon Ratchasima', Sales: 1100000, 'Sales Target': 1200000 },
+      { Region: 'East', Province: 'Chonburi', Sales: 2100000, 'Sales Target': 2500000 },
+      { Region: 'East', Province: 'Rayong', Sales: 900000, 'Sales Target': 800000 },
+      { Region: 'South', Province: 'Phuket', Sales: 1200000, 'Sales Target': 1000000 },
+      { Region: 'South', Province: 'Songkhla', Sales: 900000, 'Sales Target': 1100000 },
+      { Region: 'North', Province: 'Chiang Mai', Sales: 1800000, 'Sales Target': 1600000 },
+      { Region: 'North', Province: 'Chiang Rai', Sales: 700000, 'Sales Target': 650000 },
+    ],
+    config: {
+      groupBy: ['Region'],
+      metrics: ['Sales', 'Sales Target'],
+      aggs: { Sales: 'sum', 'Sales Target': 'sum' },
+      derived: [{ name: '%Achieve', formula: '[Sales] / [Sales Target] * 100' }],
+      formats: [{ col: '%Achieve', type: 'percent', decimals: 0 }],
+      sortCol: 'Sales', sortDir: 'desc',
+      totalRow: true,
+      viz: { chart: { type: 'bar', xCol: 'Region', valueCol: 'Sales', unit: 'M', excludeTotals: true } },
+    },
+  },
+  storeRanking: {
+    label: 'Store ranking',
+    rows: [
+      { 'Store Code': '081', 'Store Name': 'Chidlom', Region: 'Central', Sales: 4200000 },
+      { 'Store Code': '512', 'Store Name': 'Central World', Region: 'Central', Sales: 3600000 },
+      { 'Store Code': '208', 'Store Name': 'Chiang Mai Airport', Region: 'North', Sales: 1800000 },
+      { 'Store Code': '226', 'Store Name': 'Khon Kaen Central', Region: 'Northeast', Sales: 1500000 },
+      { 'Store Code': '347', 'Store Name': 'Phuket Central', Region: 'South', Sales: 1200000 },
+      { 'Store Code': '019', 'Store Name': 'Korat Terminal', Region: 'Northeast', Sales: 1100000 },
+      { 'Store Code': '455', 'Store Name': 'Hatyai', Region: 'South', Sales: 900000 },
+      { 'Store Code': '133', 'Store Name': 'Rayong Central', Region: 'East', Sales: 900000 },
+      { 'Store Code': '102', 'Store Name': 'Ayutthaya Park', Region: 'Central', Sales: 800000 },
+      { 'Store Code': '144', 'Store Name': 'Udon Thani', Region: 'Northeast', Sales: 700000 },
+    ],
+    config: {
+      groupBy: ['Store Name'],
+      metrics: ['Sales'],
+      aggs: { Sales: 'sum' },
+      sortCol: 'Sales', sortDir: 'desc',
+      topN: 5,
+      viz: { chart: { type: 'barh', xCol: 'Store Name', valueCol: 'Sales', unit: 'M' } },
+    },
+  },
+  oosDelist: {
+    label: 'OOS / delist candidates',
+    rows: [
+      { SKU: 'SKU001', Store: 'StoreA', 'Item Qty': 100, "Item Qty Can't Shipped": 5 },
+      { SKU: 'SKU001', Store: 'StoreB', 'Item Qty': 80, "Item Qty Can't Shipped": 60 },
+      { SKU: 'SKU001', Store: 'StoreC', 'Item Qty': 120, "Item Qty Can't Shipped": 10 },
+      { SKU: 'SKU002', Store: 'StoreA', 'Item Qty': 50, "Item Qty Can't Shipped": 2 },
+      { SKU: 'SKU002', Store: 'StoreB', 'Item Qty': 60, "Item Qty Can't Shipped": 3 },
+      { SKU: 'SKU002', Store: 'StoreC', 'Item Qty': 40, "Item Qty Can't Shipped": 1 },
+      { SKU: 'SKU003', Store: 'StoreA', 'Item Qty': 200, "Item Qty Can't Shipped": 150 },
+      { SKU: 'SKU003', Store: 'StoreB', 'Item Qty': 180, "Item Qty Can't Shipped": 160 },
+      { SKU: 'SKU003', Store: 'StoreC', 'Item Qty': 150, "Item Qty Can't Shipped": 140 },
+      { SKU: 'SKU004', Store: 'StoreA', 'Item Qty': 90, "Item Qty Can't Shipped": 4 },
+      { SKU: 'SKU004', Store: 'StoreB', 'Item Qty': 70, "Item Qty Can't Shipped": 3 },
+      { SKU: 'SKU004', Store: 'StoreC', 'Item Qty': 60, "Item Qty Can't Shipped": 2 },
+    ],
+    config: {
+      groupBy: ['SKU'],
+      metrics: ['Item Qty', "Item Qty Can't Shipped"],
+      aggs: { 'Item Qty': 'sum', "Item Qty Can't Shipped": 'sum' },
+      derived: [{ name: '%OOS', formula: "[Item Qty Can't Shipped] / [Item Qty] * 100" }],
+      condMetrics: [{
+        name: 'Stores Understocked', type: 'count', valueCol: '',
+        conditions: [{ col: "Item Qty Can't Shipped", op: '>=', value: '50' }],
+      }],
+      filters: [{ col: '%OOS', op: '>=', value: '20' }],
+      sortCol: '%OOS', sortDir: 'desc',
+      viz: { chart: { type: 'bar', xCol: 'SKU', valueCol: '%OOS' } },
+    },
+  },
+};
+
+// Builds an in-memory workbook from a template's rows and feeds it through the same loadSheet()
+// path as a real upload, then applies the template's config and runs the analysis immediately —
+// a one-click, no-file-needed way to see the tool work before trusting it with real data.
+function loadSampleTemplate(key) {
+  const tpl = SAMPLE_TEMPLATES[key];
+  if (!tpl) return;
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(tpl.rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Sample');
+  workbook = wb;
+  sheetSelect.innerHTML = '';
+  const opt = document.createElement('option');
+  opt.value = 'Sample';
+  opt.textContent = 'Sample';
+  sheetSelect.appendChild(opt);
+  sheetSelect.value = 'Sample';
+  sheetSelect.disabled = false;
+  fileNameEl.textContent = `${tpl.label} (sample data)`;
+  loadSheet();
+  applyConfig(tpl.config);
+  runAnalysis();
+}
+
 /* ---------- config UI ---------- */
 
 function buildColumnPickers() {
@@ -272,6 +378,12 @@ function buildColumnPickers() {
   labelList.innerHTML = '';
   filterList.innerHTML = '';
   document.getElementById('formatList').innerHTML = '';
+  // A fresh file load starts every advanced (collapsible) section closed; applyConfig() —
+  // called right after by a preset, the CSM auto-preset, or a quick-start template — reopens
+  // whichever ones actually end up configured.
+  document.getElementById('condMetricsBox').open = false;
+  document.getElementById('pivotBox').open = false;
+  document.getElementById('vizBox').open = false;
   for (const col of columns) {
     const gbLabel = makeCheckbox('groupby', col);
     gbLabel.appendChild(makeGranSelect(col));
@@ -792,7 +904,7 @@ function updateSelectors() {
     fillSelect(sel, metrics, 'Insert column…');
   }
   for (const sel of document.querySelectorAll('.cmValueCol')) {
-    fillSelect(sel, numericColumns);
+    fillSelect(sel, numericColumns, '(choose column)');
   }
   for (const sel of document.querySelectorAll('.ccCol')) {
     fillSelect(sel, columns);
@@ -1792,6 +1904,11 @@ function applyConfig(cfg) {
   colorScaleEnabledCb.checked = !!csCfg.enabled;
   colorScaleColSelect.value = '';
   if (csCfg.col && numericOutputNames().includes(csCfg.col)) colorScaleColSelect.value = csCfg.col;
+  // Reopen an advanced section only if this config actually uses it — never hide settings the
+  // config just switched on, but a config that leaves one untouched keeps it collapsed.
+  document.getElementById('condMetricsBox').open = readCondMetrics().length > 0;
+  document.getElementById('pivotBox').open = !!pivotCfg.enabled;
+  document.getElementById('vizBox').open = vc.type && vc.type !== 'none';
   return [...(cfg.groupBy || []), ...(cfg.metrics || [])].filter((c) => !columns.includes(c));
 }
 
@@ -2260,6 +2377,10 @@ function downloadXlsx() {
 }
 
 /* ---------- events ---------- */
+
+for (const btn of document.querySelectorAll('#quickStartBox [data-template]')) {
+  btn.addEventListener('click', () => loadSampleTemplate(btn.dataset.template));
+}
 
 dropzone.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', () => {

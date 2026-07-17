@@ -77,6 +77,28 @@
       border: 1px solid #3a3a3a; border-radius: 10px;
       padding: 14px 16px; background: #232323;
     }
+
+    /* Progressive disclosure: advanced sections (4, 8, 9) collapse behind a <details> summary */
+    details.box > summary {
+      cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px;
+    }
+    details.box > summary::-webkit-details-marker { display: none; }
+    details.box > summary::marker { content: ""; }
+    details.box > summary h2 { margin: 0; flex: 1; }
+    details.box > summary::before {
+      content: "\25B8"; color: #999; font-size: 12px; transition: transform 0.12s; flex: 0 0 auto;
+    }
+    details.box[open] > summary::before { transform: rotate(90deg); }
+
+    #quickStartBox { margin-bottom: 14px; }
+    .qsGrid { display: flex; gap: 12px; flex-wrap: wrap; }
+    .qsCard {
+      flex: 1 1 220px; border: 1px solid #3a3a3a; border-radius: 8px;
+      padding: 12px 14px; background: #1c1c1c;
+    }
+    .qsCard h3 { font-size: 13px; margin: 0 0 6px 0; color: #ddd; }
+    .qsCard p { font-size: 12px; color: #999; margin: 0 0 10px 0; line-height: 1.4; }
     #presetBar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     #presetBar .spacer { flex: 1; }
 
@@ -184,6 +206,27 @@
     </div>
     <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
 
+    <div class="box" id="quickStartBox">
+      <h2>Quick start <small>&mdash; try a template with built-in sample data, no file needed</small></h2>
+      <div class="qsGrid">
+        <div class="qsCard">
+          <h3>Sales vs Target</h3>
+          <p>Group sales by region, compute % of target achieved, and chart the result.</p>
+          <button class="small" type="button" data-template="salesVsTarget">Try with sample data</button>
+        </div>
+        <div class="qsCard">
+          <h3>Store ranking</h3>
+          <p>Rank stores by sales, keep the top performers, and chart them.</p>
+          <button class="small" type="button" data-template="storeRanking">Try with sample data</button>
+        </div>
+        <div class="qsCard">
+          <h3>OOS / delist candidates</h3>
+          <p>Find SKUs with a high out-of-stock rate using a conditional metric, a calculated column, and a filter.</p>
+          <button class="small" type="button" data-template="oosDelist">Try with sample data</button>
+        </div>
+      </div>
+    </div>
+
     <div class="box" id="helpPanel" hidden>
       <h2>How everything works</h2>
       <div class="helpCols">
@@ -263,11 +306,11 @@
         <div class="colList" id="metricsBox"></div>
       </div>
 
-      <div class="box span2" id="condMetricsBox">
-        <h2>4. Conditional aggregation (SUMIF / COUNTIF) <small>&mdash; sum/count/etc. a raw column only for rows matching one or more conditions, e.g. Central Sales = SUM(Sales) where Region = Central</small></h2>
+      <details class="box span2" id="condMetricsBox">
+        <summary><h2>4. Conditional aggregation (SUMIF / COUNTIF) <small>&mdash; sum/count/etc. a raw column only for rows matching one or more conditions, e.g. Central Sales = SUM(Sales) where Region = Central</small></h2></summary>
         <div id="condMetricList"></div>
         <button class="small" id="addCondMetricBtn" type="button">+ Add conditional metric</button>
-      </div>
+      </details>
 
       <div class="box">
         <h2>5. Calculated columns <small>&mdash; write formulas over the data columns, e.g. ([Qty Ordered] &minus; [Qty Shipped]) / [Qty Ordered] * 100</small></h2>
@@ -307,8 +350,8 @@
         </div>
       </div>
 
-      <div class="box span2" id="pivotBox">
-        <h2>8. Cross-tab (pivot) <small>&mdash; turn one result column's values into separate columns (cap 40 distinct values)</small></h2>
+      <details class="box span2" id="pivotBox">
+        <summary><h2>8. Cross-tab (pivot) <small>&mdash; turn one result column's values into separate columns (cap 40 distinct values)</small></h2></summary>
         <div class="configRow">
           <label><input type="checkbox" id="pivotEnabled" /> Enable cross-tab</label>
         </div>
@@ -318,10 +361,10 @@
           <label for="pivotValueCol" style="margin-left:14px">Values:</label>
           <select id="pivotValueCol"></select>
         </div>
-      </div>
+      </details>
 
-      <div class="box span2" id="vizBox">
-        <h2>9. Charts &amp; formatting <small>&mdash; visualize the result and color-scale a numeric column in the preview (preview only, not saved to the .xlsx)</small></h2>
+      <details class="box span2" id="vizBox">
+        <summary><h2>9. Charts &amp; formatting <small>&mdash; visualize the result and color-scale a numeric column in the preview (preview only, not saved to the .xlsx)</small></h2></summary>
         <div class="configRow">
           <label for="vizChartType">Chart:</label>
           <select id="vizChartType">
@@ -368,7 +411,7 @@
         </div>
         <div id="formatList"></div>
         <button class="small" id="addFormatBtn" type="button">+ Add column format</button>
-      </div>
+      </details>
 
       <div class="span2" id="runRow">
         <button id="runBtn">Run Analysis</button>
