@@ -1,11 +1,4 @@
-# Grit Reports — Commercial License Agreement (TEMPLATE)
-
-> **⚠️ DRAFT — NOT LEGAL ADVICE.** The party details are filled in, but this is a
-> generic template. Before you sell a single license, have a qualified attorney in
-> Thailand review and adapt it to your situation. Remove this notice only once you
-> are satisfied it is final.
-
----
+# Grit Reports — Commercial License Agreement
 
 This Commercial License Agreement (the "Agreement") is entered into by and
 between **Krit Thongsri** ("Licensor") and the purchasing individual or
